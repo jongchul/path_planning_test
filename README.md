@@ -2,6 +2,8 @@ CarND-Path-Planning-Project
 
 Self-Driving Car Engineer Nanodegree Program
 
+https://discussions.udacity.com/t/erratic-end-path-s/348927
+
 https://discussions.udacity.com/t/path-planning-project-discontinuities-in-getxy/318833/5
 https://discussions.udacity.com/t/error-in-spline-h-on-second-set-of-x-y-vector-values/345081/22
 

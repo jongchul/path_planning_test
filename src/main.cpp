@@ -338,118 +338,25 @@ int main() {
 
             int prev_size = previous_path_x.size();
 
-        //    cout << "car_d " << car_d << endl;
-
+ 
              // DEBUG
 
    //         cout << "prev_size" << endl;
   //          cout << prev_size << endl;
 
-          // **************** DETERMINE EGO CAR PARAMETERS AND CONSTRUCT VEHICLE OBJECT ******************
-          // Vehicle class requires s,s_d,s_dd,d,d_d,d_dd - in that order
-          //  https://discussions.udacity.com/t/error-in-spline-h-on-second-set-of-x-y-vector-values/345081/41
-         
+          // **************** DETERMINE EGO CAR PARAMETERS AND CONSTRUCT VEHICLE OBJECT ******************       
 
             double duration = 1.0;
           
             double car_x1, car_y1, car_x2, car_y2, car_x3, car_y3, vx1, vy1, vx2, 
             vy2, s1, s2, s_dot, d1, d2, d_dot, d_dot_sec;
 
+            double previous_end_s;
+
 
             if(prev_size > 0)
             {
 
-            /* 
-            car_x1 = previous_path_x[prev_size-1];
-            car_y1 = previous_path_y[prev_size-1];
-
-            car_x2 = previous_path_x[prev_size-2];
-            car_y2 = previous_path_y[prev_size-2];
-
-            car_x3 = previous_path_x[prev_size-3];
-            car_y3 = previous_path_y[prev_size-3];
-
-            vx1 = car_x1 - car_x2;
-            vy1 = car_y1 - car_y2;
-
-            vx2 = car_x2 - car_x3;
-            vy2 = car_y2 - car_y3;
-
-      //      https://discussions.udacity.com/t/calculation-of-speed-in-frenet-space/451483
-            s1 = sqrt(pow(vx1, 2) + pow(vy1, 2));
-            s2 = sqrt(pow(vx2, 2) + pow(vy2, 2));
-
-            double heading = atan2(car_y1 - car_y2, car_x1 - car_x2);
-            vector<double> sd_v1 = getFrenet(car_x1, car_y1, heading, map_waypoints_x,map_waypoints_y);
-          
-            double heading2 = atan2(car_y2 - car_y3, car_x2 - car_x3);
-            vector<double> sd_v2 = getFrenet(car_x2, car_y2, heading2, map_waypoints_x,map_waypoints_y);
-            
-            d1 = sd_v1[1];
-            d2 = sd_v2[1];
-
-            cout << "d1 : " << d1 << endl;
-            cout << "d2 : " << d2 << endl;
-
-            d_dot = d1 - d2;
-            s_dot = (sqrt(pow(vx1,2) + pow(vy1,2) - pow(d_dot,2)))*20;
-
-            d_dot_sec =  d_dot * 50;
-
-            ego_car.d = d1;
-            ego_car.s = sd_v1[0];
-            ego_car.s_d = s_dot;
-            */
-        //     ego_car.s_d = s_dot;
-            
-             /*
-            ego_car.s = car_s;
-            ego_car.d = car_d;
-              */
-          //  ego_car.s_d = 20;
-
-            /*
-            car_x1 = previous_path_x[2];
-            car_y1 = previous_path_y[2];
-
-            car_x2 = previous_path_x[1];
-            car_y2 = previous_path_y[1];
-
-            car_x3 = previous_path_x[0];
-            car_y3 = previous_path_y[0];
-
-            vx1 = car_x1 - car_x2;
-            vy1 = car_y1 - car_y2;
-
-            vx2 = car_x2 - car_x3;
-            vy2 = car_y2 - car_y3;
-
-            s1 = sqrt(pow(vx1, 2) + pow(vy1, 2));
-            s2 = sqrt(pow(vx2, 2) + pow(vy2, 2));
-
-            double heading = atan2(car_y1 - car_y2, car_x1 - car_x2);
-            vector<double> sd_v1 = getFrenet(car_x1, car_y1, heading, map_waypoints_x,map_waypoints_y);
-          
-            double heading2 = atan2(car_y2 - car_y3, car_x2 - car_x3);
-            vector<double> sd_v2 = getFrenet(car_x2, car_y2, heading2, map_waypoints_x,map_waypoints_y);
-            
-            d1 = sd_v1[1];
-            d2 = sd_v2[1];
-
-            cout << "d1 : " << d1 << endl;
-            cout << "d2 : " << d2 << endl;
-
-            d_dot = d1 - d2;
-            s_dot = (sqrt(pow(vx1,2) + pow(vy1,2) - pow(d_dot,2)))*20;
-
-            d_dot_sec =  d_dot * 50;
-
-        //    ego_car.d = d1;
-         //   ego_car.s = sd_v1[0];
-        //    ego_car.s_d = s_dot;
-
-          */
-
             car_x2 = previous_path_x[1];
             car_y2 = previous_path_y[1];
 
@@ -461,20 +368,21 @@ int main() {
 
             s2 = sqrt(pow(vx2, 2) + pow(vy2, 2));
 
-            ego_car.s = car_s;
+        //    ego_car.s = car_s;
+
+       //     ego_car.s = car_s;
+
+            ego_car.s = previous_end_s;
+
+            cout << "car_s should be equal to s of previous trajectory : " << ego_car.s << endl;
+
             ego_car.d = car_d;
             ego_car.s_d  = s2 * 50;
-
 
          //   cout << "d_dot_sec : " <<  d_dot_sec << endl;
          //   cout << "s_dot : " << s_dot  << endl;
 
-
         //    cout << "ego_car d_d =======" << ego_car.d_d  << endl;
-
-
-
-
 
           } else
           {
@@ -486,8 +394,7 @@ int main() {
             ego_car.s = car_s;
             ego_car.d = car_d;
             ego_car.s_d  = car_speed;
-
-           
+        
           }
 
             cout << "ego_car s =======" << ego_car.s << endl;
@@ -514,52 +421,7 @@ int main() {
 
               // DEBUG, check ego_car.s and other vehicle s in the same line.
 
-              /*
-              double d_diff = other_car.d - car_d;
-
-              if(d_diff < 2.0){d           
-              
-              double s_diff = fabs(other_car.s - car_s);
-              double s_diff_ahead = other_car.s - car_s;
-              double d_diff = other_car.d - car_d;
-          
-              cout << "ego_car s and d " << endl;
-              cout << "ego_car.s " << ego_car.s << endl;
-              cout << "ego_car.d " << ego_car.d << endl;
-              
-              if(d_diff < 2.0){
-                cout << "d_diff is different " << endl;
-                cout << "v_id " << v_id << endl;
-                cout << "other_cars.s " << other_car.s << endl;
-                cout << "s_diff " << s_diff << endl;
-                cout << "s_diff_ext " << s_diff_ahead << endl;
-                }
               }
-              */
-       
-              }
-
-              // DEBUG, check prediction value is correct on the second lane.. 
-
-              /*
-              for (auto prediction : predictions) {
-   
-              if(fabs(ego_car.d - prediction.second[0][1]) < 2.0){
-
-                cout << "second " << prediction.second[0][1] << endl;
-
-           //   if((prediction.second[0][1])/4 ==  1.0){
-              
-              cout << "predictions.first=========" <<  prediction.first << endl;
-
-              cout << "predictions.second=========" << prediction.second[0][0] 
-              << "  " << prediction.second[50][0] << " " << prediction.second[99][0] << endl;
-               
-               }
-              }
-            }
-
-              */
             
             bool car_to_left = false, car_to_right = false, car_just_ahead = false;
 
@@ -654,9 +516,9 @@ int main() {
                 
               
 
-           //   vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
+              vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
 
-              vector<vector<double>> possible_traj = ego_car.generate_best_traj(target_s_and_d, duration);
+           //   vector<vector<double>> possible_traj = ego_car.generate_best_traj(target_s_and_d, duration);
 
               // DEBUG. possible trajectory summary
 
@@ -877,28 +739,15 @@ int main() {
             //****** check distance logic ends. *********** //
             //DEBUG. smooth waypoint generation, https://discussions.udacity.com/t/follow-lane-breakdown/313481/7
        
-       //     vector<double> ptsx;
-       //     vector<double> ptsy;
-
-
-
-           // double ref_yaw = deg2rad(car_yaw);
-
             // DEBUG
             // cout << "prev_size" << prev_size << endl;
-
-
 
             double s_val, d_val;
             vector<double> final_s, final_d, final_x, final_y, final_dx, final_dy;
 
             vector<double> x_way, y_way, dx_way, dy_way, ss_way, d_way;
-
-            //double test = (13-13)/13;
-
           
             double final_traj_size = final_traj[0].size();
-
 
             cout << "=======s very important ===========" << endl;
 
@@ -919,40 +768,17 @@ int main() {
              cout << "===================" << endl;
             */
 
-
-            
-
-
-           // for(int i=1;i<=sample_num;i++){
-
             for(int i=0;i<final_traj_size;i++){
 
-        //    s_val = final_traj[0][(final_traj_size-1)  - final_traj_size * (sample_num- i)/sample_num];
-       //     d_val = final_traj[1][(final_traj_size-1)  - final_traj_size * (sample_num- i)/sample_num];
-
+;
             s_val = final_traj[0][i];
             d_val = final_traj[1][i];
 
-         //   cout << "final_traj s_val " << s_val << endl;
-
-        //    cout << (final_traj_size -1) << endl;
-        //    cout << final_traj_size * (sample_num- i)/sample_num << endl;
-        //    cout << "d_value " << d_value << endl;
-
-         //   int prev_wp_test = -1;
 
             if(s_val < ego_car.s){
 
               "****************** Big Big Big Big Error *******************";
             }
-
-            /*
-            while(s_val > map_waypoints_s[prev_wp_test+1] && (prev_wp_test < (int)(map_waypoints_s.size()-1) ))
-            {
-                prev_wp_test++;
-
-           }
-           */
 
             int prev_wp = -1;
 
@@ -962,54 +788,6 @@ int main() {
 
             }
 
-            /*
-            int wp2_test = (prev_wp_test+1)%map_waypoints_s.size();
-
-        //    cout << "maps_s behind " << map_waypoints_s[prev_wp_test] << endl;
-       //    cout << "maps_s front " << map_waypoints_s[prev_wp_test+1] << endl;
-
-            double gap = map_waypoints_s[prev_wp_test+1] - map_waypoints_s[prev_wp_test];
-
-        //    cout << "maps_s front - maps_s behind " << gap <<  endl;
-
-            double gap_car = s_val - map_waypoints_s[prev_wp_test];
-
-       //     cout << "gap_car : " << gap_car <<  endl;
-
-        //    cout << "car_s - maps_s behind " << gap_car <<  endl;
-
-            double proj_s = gap_car/gap;
-
-        //    cout << "proj_s " << proj_s <<  endl;
-       //     cout << "final_traj s_val " << s_val + (gap * proj_s) << endl;
-
-            double dx1, dx2, dy1, dy2, proj_dx_v, proj_dy_v;
-
-            dx1 = map_waypoints_dx[prev_wp_test];
-            dx2 = map_waypoints_dx[prev_wp_test+1];
-
-            dy1 = map_waypoints_dy[prev_wp_test];
-            dy2 = map_waypoints_dy[prev_wp_test+1];
-
-            proj_dx_v = (dx2 * (1 - proj_s) + dx1 * proj_s)/2;
-
-            proj_dy_v = (dy2 * (1 - proj_s) + dy1 * proj_s)/2;
-
-          //  proj_dy_v = ((dy2 + dy1)/2) * proj_s;
-
-         //   cout << " proj_dx_v, proj_dy_v : " << proj_dx_v << " , " << proj_dy_v << endl;
-        //    cout << "waypoint d " << d_value << endl;
-       //     cout << map_waypoints_y[prev_wp_test] << endl;
-
-            double extimated_x = map_waypoints_x[prev_wp_test] 
-            +  proj_s * (map_waypoints_x[prev_wp_test+1] - map_waypoints_x[prev_wp_test]);
-
-            double extimated_y = map_waypoints_y[prev_wp_test] 
-            +  proj_s * (map_waypoints_y[prev_wp_test+1] - map_waypoints_y[prev_wp_test]);
-
-         //   cout << "estimated x : " << extimated_x << "  " << flush;
-         //   cout << "estimated y : " << extimated_y << endl;
-            */
 
             int wp2 = (prev_wp+1)%map_waypoints_x.size();
 
@@ -1084,8 +862,9 @@ int main() {
           
           if(prev_size > 2) {
 
-              ref_x = previous_path_x[0];
-              ref_y = previous_path_y[0];
+              ref_x = previous_path_x[previous_path_x.size()-1];
+              ref_y = previous_path_y[previous_path_y.size()-1];
+              ref_s = previous_end_s;
 
               /*
               for(int i=0;i<prev_size;i++){
@@ -1169,10 +948,15 @@ int main() {
             input_x.push_back(final_x_way[i] -ref_x);
             input_y.push_back(final_y_way[i] -ref_y);
         // final_d_way[i]      
-        //    input_x.push_back((final_x_way[i] + 6 * final_dx_way[i]) -ref_x);
-         //   input_y.push_back((final_y_way[i] + 6 * final_dy_way[i]) -ref_y);
+        //    input_x.push_back((final_x_way[i] + final_d_way[i]  * final_dx_way[i]) -ref_x);
+        //    input_y.push_back((final_y_way[i] + final_d_way[i]  * final_dy_way[i]) -ref_y);
 
           }
+
+          cout << "final_s_way[final_s_way.size()-1] : " << final_s_way[final_s_way.size()-1] << endl;
+          previous_end_s = final_s_way[final_s_way.size()-1];
+
+          cout << "car_s : " << car_s << endl;
 
           /*
          cout << "====== input_s is very important ========" << endl;
@@ -1198,10 +982,17 @@ int main() {
           cout << "=================" << endl;
           */
 
-
           vector<double> next_x_vals_final;
           vector<double> next_y_vals_final;
 
+
+          for(int i= 0; i < previous_path_x.size(); i++){
+                next_x_vals_final.push_back(previous_path_x[i]);
+                next_y_vals_final.push_back(previous_path_y[i]);
+
+          //      smooth_next_x_vals.push_back(previous_path_x[i]);
+          //      smooth_next_y_vals.push_back(previous_path_y[i]);
+            }
 
           tk::spline spline_x_s_final;
           tk::spline spline_y_s_final;
@@ -1211,36 +1002,17 @@ int main() {
           spline_x_s_final.set_points(input_s,input_x);
           spline_y_s_final.set_points(input_s,input_y);
 
-          double target_s = 1;
+       //   double target_s = 1;
 
-                    
+          
           double progress = 0;        
 
-          for(int i= 0; i < 50; i++){
+          for(int i= 0; i < 60; i++){
 
                 double tg_x, tg_y;
 
-              //  progress = input_s[i];
-
-           //     progress = (s_point +1)/(ref_vel*0.1);
-
-            //    progress = (s_point +1);
-             
-
-            //     progress = s_point * (i);
-          //      cout << "progress " << endl;
-             //   progress = (target_s/ref_vel) * (i+1) * 4;
-          //      cout << progress << endl;
-
-
-            //    tg_x =  base_x  + spline_x_s(progress) +  d_way[progress]*(spline_dx_s(progress));
-            //    tg_y = base_y + spline_y_s(progress) +  d_way[progress]*(spline_dy_s(progress));
-
-            //    tg_x =  spline_x_s_final(progress);
-            //    tg_y = spline_y_s_final(progress);
-
-                tg_x =  spline_x_s_final(i * 0.35);
-                tg_y = spline_y_s_final(i * 0.35);
+                tg_x =  spline_x_s_final(i * 0.3);
+                tg_y = spline_y_s_final(i * 0.3);
 
                 /*
                 cout << "progress " << progress << endl;
@@ -1252,18 +1024,20 @@ int main() {
             }
 
             /*
-            for(int i=0;i< next_x_vals_final.size();i++){
-              cout <<  next_x_vals_final[i] << endl;
-              cout <<  next_y_vals_final[i] << endl;
+            cout << "next_x_vals_final travel distance " << endl;
+
+            for(int i=0;i< next_x_vals_final.size()-1;i++){
+             // cout <<  next_x_vals_final[i] << endl;
+             // cout <<  next_y_vals_final[i] << endl;
+            
+              cout << sqrt(pow(next_x_vals_final[i+1]-next_x_vals_final[i],2) +
+                          pow(next_y_vals_final[i+1]-next_y_vals_final[i],2)) << endl;
             }
             */
+            
 
                 
             json msgJson;
-
-         
-      //      msgJson["next_x"] = next_x_vals_test;
-      //      msgJson["next_y"] = next_y_vals_test;
 
 
             msgJson["next_x"] = next_x_vals_final;
