@@ -450,9 +450,21 @@ int main() {
 
           */
 
+            car_x2 = previous_path_x[1];
+            car_y2 = previous_path_y[1];
+
+            car_x3 = previous_path_x[0];
+            car_y3 = previous_path_y[0];
+
+            vx2 = car_x2 - car_x3;
+            vy2 = car_y2 - car_y3;
+
+            s2 = sqrt(pow(vx2, 2) + pow(vy2, 2));
+
             ego_car.s = car_s;
             ego_car.d = car_d;
-            ego_car.s_d  = car_speed;
+            ego_car.s_d  = s2 * 50;
+
 
          //   cout << "d_dot_sec : " <<  d_dot_sec << endl;
          //   cout << "s_dot : " << s_dot  << endl;
@@ -642,23 +654,25 @@ int main() {
                 
               
 
-              vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
+           //   vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
+
+              vector<vector<double>> possible_traj = ego_car.generate_best_traj(target_s_and_d, duration);
 
               // DEBUG. possible trajectory summary
 
-              /*
-                cout << " possible traj s summary"  << endl;
+              
+                cout << " possible traj2 s summary"  << endl;
                 cout << possible_traj[0][0] << endl;
-                cout << possible_traj[0][50] << endl;
-                cout << possible_traj[0][100] << endl;
-                cout << possible_traj[0][149] << endl;
+                cout << possible_traj[0][19] << endl;
+             //   cout << possible_traj2[0][100] << endl;
+              //  cout << possible_traj2[0][149] << endl;
 
                 cout << " possible traj d summary"  << endl;
                 cout << possible_traj[1][0] << endl;
-                cout << possible_traj[1][50] << endl;
-                cout << possible_traj[1][100] << endl;
-                cout << possible_traj[1][149] << endl;
-                */
+                cout << possible_traj[1][19] << endl;
+             //   cout << possible_traj2[1][100] << endl;
+             //   cout << possible_traj2[1][149] << endl;
+                
 
                 distance_to_goal = GOLE_S - target_s_and_d[0][0];
 
@@ -712,7 +726,7 @@ int main() {
                 cout << "ego_car.available_states=========== " << endl;
                 cout << state << endl;  
          
-                total_cost += cost2 * 5 + cost1 * 10;
+                total_cost += cost2 * 5 + cost1 * 1000;
   
                 //DEBUG. lane change logic test.
 
@@ -776,13 +790,14 @@ int main() {
               " , " << car_s << " , " << car_d << endl;
               
               //DEBUG
-              
+              /*
                for(int i=0;i<final_traj[0].size();++i){
 
                 cout << final_traj[0][i] << endl;
                 cout << final_traj[1][i] << endl;
 
                }
+               */
                       
                 //DEBUG end
 
@@ -884,11 +899,8 @@ int main() {
           
             double final_traj_size = final_traj[0].size();
 
-             /*
 
-            int sample_gen = 10;
-
-            cout << "===================" << endl;
+            cout << "=======s very important ===========" << endl;
 
             for(int i=0;i<final_traj_size;i++){
 
@@ -896,6 +908,7 @@ int main() {
               
             }
 
+            /*
             cout << "===================" << endl;
 
             for(int i=0;i<final_traj_size;i++){
@@ -904,7 +917,10 @@ int main() {
             }
 
              cout << "===================" << endl;
-             */
+            */
+
+
+            
 
 
            // for(int i=1;i<=sample_num;i++){
@@ -923,19 +939,30 @@ int main() {
         //    cout << final_traj_size * (sample_num- i)/sample_num << endl;
         //    cout << "d_value " << d_value << endl;
 
-            int prev_wp_test = -1;
+         //   int prev_wp_test = -1;
 
             if(s_val < ego_car.s){
 
               "****************** Big Big Big Big Error *******************";
             }
 
+            /*
             while(s_val > map_waypoints_s[prev_wp_test+1] && (prev_wp_test < (int)(map_waypoints_s.size()-1) ))
             {
                 prev_wp_test++;
 
            }
+           */
 
+            int prev_wp = -1;
+
+            while(s_val > map_waypoints_s[prev_wp+1] && (prev_wp < (int)(map_waypoints_s.size()-1) ))
+            {
+              prev_wp++;
+
+            }
+
+            /*
             int wp2_test = (prev_wp_test+1)%map_waypoints_s.size();
 
         //    cout << "maps_s behind " << map_waypoints_s[prev_wp_test] << endl;
@@ -982,6 +1009,34 @@ int main() {
 
          //   cout << "estimated x : " << extimated_x << "  " << flush;
          //   cout << "estimated y : " << extimated_y << endl;
+            */
+
+            int wp2 = (prev_wp+1)%map_waypoints_x.size();
+
+            double heading = atan2((map_waypoints_y[wp2]-map_waypoints_y[prev_wp]),(map_waypoints_x[wp2]-map_waypoints_x[prev_wp]));
+
+            // the x,y,s along the segment
+            double seg_s = (s_val-map_waypoints_s[prev_wp]);
+ 
+            double seg_x = map_waypoints_x[prev_wp]+seg_s*cos(heading);
+            double seg_y = map_waypoints_y[prev_wp]+seg_s*sin(heading);
+
+  //https://discussions.udacity.com/t/transformation-from-frenet-to-global-coordinates/387010/3
+
+            double perp_heading = heading-pi()/2;
+
+ // DEBUG
+//  cout << "heading, perp_heading, s, d" << endl;
+//  cout << heading << endl;
+//  cout << perp_heading << endl;
+//  cout << d << endl;
+ // cout << s << endl;
+
+            double extimated_x = seg_x + d_val*cos(perp_heading);
+            double extimated_y = seg_y + d_val*sin(perp_heading);
+
+            double proj_dx_v = map_waypoints_dx[prev_wp];
+            double proj_dy_v = map_waypoints_dy[prev_wp];
 
             x_way.push_back(extimated_x);
             y_way.push_back(extimated_y);
@@ -992,93 +1047,13 @@ int main() {
             ss_way.push_back(s_val);
 
             d_way.push_back(d_val);
-
           }
+        
 
-    //      cout << "ref_x " << ref_x << endl;
-    //      cout << "ref_y " << ref_y << endl;
-    //      cout << "ref_s " << ego_car.s << endl;
+          cout << "final traj summary " << endl;
 
-          //spline fit
-
-          /*  
-          vector<double> x_sway,y_sway,ss_sway;
-
-          for(int i=0;i<x_way.size();i++){
-            x_sway.push_back(x_way[i]-ref_x);
-            y_sway.push_back(y_way[i]-ref_y);
-            ss_sway.push_back(ss_way[i]-ego_car.s);
-
-          }
-
-          cout << "ss_sway summary : " << endl;
-          for(int i=0;i<ss_sway.size();i++){
-            cout << ss_sway[i] << endl;
-          }
-
-          
-          cout << "summary: s, d, x, y, dx, dy " << endl;
-
-
-          for(int i=0;i<x_sway.size();i++){
-            cout << ss_sway[i] << " " << flush;
-            cout << d_way[i] << " " << flush;
-            cout << x_sway[i] << " " << flush;
-            cout << y_sway[i] << " " << flush;
-            cout << dx_way[i] << " " << flush;
-            cout << dy_way[i] <<" " << endl;
-          }
-          */
-          
-          
-          cout << "previous path summary " << endl;
 
           /*
-
-          vector<double> prev_ss_way;
-          vector<double> prev_x_way;
-          vector<double> prev_y_way;
-
-          double prev_temp_x, prev_temp_y, temp_x, temp_y,temp_heading;
-
-          double prev_s_value;
-
-          prev_s_value = car_s;
-          */
-
-          /*
-
-          if(prev_size > 2) {
-
-          prev_temp_x = previous_path_x[0];
-          prev_temp_y = previous_path_y[0];
-
-          temp_x = previous_path_x[1];
-          temp_y = previous_path_y[1];
-
-          temp_heading = atan2(prev_temp_y - temp_y, prev_temp_x - temp_x);
-
-          vector<double> sd_vector = getFrenet(previous_path_x[1], previous_path_y[1], temp_heading, map_waypoints_x,map_waypoints_y);
-
-          cout << "sd_vector s and d values : " << endl;
-          cout << sd_vector[0] << endl;
-          cout << sd_vector[1] << endl;
-
-          prev_s_value = sd_vector[0];
-
-         } else{
-
-          cout << "prev_size <2 nothing happens " << endl;
-
-           prev_s_value = car_s - 0.001;
-
-         }
-
-          cout << "prev_s_value : " << prev_s_value << endl;
-
-          */
-
-
          for(int i=0;i<final_traj_size;i++){
 
         //    s_val = final_traj[0][(final_traj_size-1)  - final_traj_size * (sample_num- i)/sample_num];
@@ -1087,16 +1062,18 @@ int main() {
             double s_val = final_traj[0][i];
             double d_val = final_traj[1][i];
             cout << "s value " << s_val << endl;
+            cout << "d value " << d_val << endl;
         }
+          */
 
         
-          vector<double> final_s_way, final_x_way, final_y_way;
+          vector<double> final_s_way, final_x_way, final_y_way, final_dx_way, final_dy_way, final_d_way;
 
 
           double s_gap;
 
-          tk::spline spline_x_s_test;
-          tk::spline spline_y_s_test;
+       //   tk::spline spline_x_s_test;
+       //   tk::spline spline_y_s_test;
 
 
           double ref_x = car_x;
@@ -1110,12 +1087,13 @@ int main() {
               ref_x = previous_path_x[0];
               ref_y = previous_path_y[0];
 
-
+              /*
               for(int i=0;i<prev_size;i++){
                 cout <<  previous_path_x[i] << "      " << flush;
                 cout <<  previous_path_y[i] << "      " << flush;
                 cout << "=============" << endl;
               }
+              */
 
           } else
 
@@ -1124,43 +1102,15 @@ int main() {
               ref_y = y_way[0];
           }
            
-
-
-
-
-          /*
-
-          if(prev_size > 2){
-          double slice_s = (final_traj[0][0]-prev_s_value)/prev_size;
-            
-            for(int i=0;i<prev_size;i++){
-            final_s_way.push_back(slice_s * (i));
-            final_x_way.push_back(previous_path_x[i]);
-            final_y_way.push_back(previous_path_y[i]);
-              }
-       
-          } 
-
-          else {
-
-           cout << "prev_size <2 push car data to input data vectors " << endl;
-         
-          double slice_s = (final_traj[0][0]-prev_s_value);
-
-            final_s_way.push_back(prev_s_value);
-            final_x_way.push_back(car_x);
-            final_y_way.push_back(car_y);
-          
-          }
-
-          */
-
         
 
           for(int i=0;i<ss_way.size();i++){
              final_s_way.push_back(ss_way[i]);
              final_x_way.push_back(x_way[i] );
              final_y_way.push_back(y_way[i] );
+             final_dx_way.push_back(dx_way[i]);
+             final_dy_way.push_back(dy_way[i]);
+             final_d_way.push_back(d_way[i]);
           }
 
           cout << "final input data summary =================" << endl;
@@ -1175,7 +1125,11 @@ int main() {
           for(int i=0;i<final_s_way[i];i++){
           cout << final_s_way[i] << "  " << flush;
           cout << final_x_way[i] << "  " << flush;
-          cout << final_y_way[i] << "  " << flush;    
+          cout << final_y_way[i] << "  " << flush; 
+          cout << final_d_way[i] << "  " << flush;   
+
+          cout << final_dx_way[i] << "  " << flush;
+          cout << final_dy_way[i] << "  " << flush;    
 
           cout << "============" << endl;    
           
@@ -1207,31 +1161,42 @@ int main() {
           vector<double> input_x;
           vector<double> input_y;
 
+          vector<double> input_x_test;
+          vector<double> input_y_test;
+
           for(int i=0;i<final_s_way.size();i++){
             input_s.push_back(final_s_way[i] -ref_s);
             input_x.push_back(final_x_way[i] -ref_x);
             input_y.push_back(final_y_way[i] -ref_y);
+        // final_d_way[i]      
+        //    input_x.push_back((final_x_way[i] + 6 * final_dx_way[i]) -ref_x);
+         //   input_y.push_back((final_y_way[i] + 6 * final_dy_way[i]) -ref_y);
+
           }
 
+          /*
+         cout << "====== input_s is very important ========" << endl;
 
          for(int i=0;i<input_s.size();i++){
-            cout << input_s[i] << ",   "<< flush;
+            cout << input_s[i] << ";   "<< flush;
          }
 
          cout << "=================" << endl;
 
           for(int i=0;i<input_s.size();i++){
             cout << input_x[i] << ",   "<< flush;
+        //    cout << input_x_test[i] << ";   "<< flush;
          }
 
           cout << "=================" << endl;
 
          for(int i=0;i<input_s.size();i++){
            cout << input_y[i] << ",   "<< flush;
+       //    cout << input_y_test[i] << ";   "<< flush;
          }
          
           cout << "=================" << endl;
-
+          */
 
 
           vector<double> next_x_vals_final;
@@ -1240,6 +1205,8 @@ int main() {
 
           tk::spline spline_x_s_final;
           tk::spline spline_y_s_final;
+       //   tk::spline spline_dx_s_final;
+       //   tk::spline spline_dy_s_final;
 
           spline_x_s_final.set_points(input_s,input_x);
           spline_y_s_final.set_points(input_s,input_y);
@@ -1272,21 +1239,24 @@ int main() {
             //    tg_x =  spline_x_s_final(progress);
             //    tg_y = spline_y_s_final(progress);
 
-                tg_x =  spline_x_s_final(i);
-                tg_y = spline_y_s_final(i);
+                tg_x =  spline_x_s_final(i * 0.35);
+                tg_y = spline_y_s_final(i * 0.35);
 
+                /*
                 cout << "progress " << progress << endl;
                 cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;    
+                */
+
                 next_x_vals_final.push_back(tg_x + ref_x);
                 next_y_vals_final.push_back(tg_y + ref_y);
             }
 
-
+            /*
             for(int i=0;i< next_x_vals_final.size();i++){
               cout <<  next_x_vals_final[i] << endl;
               cout <<  next_y_vals_final[i] << endl;
             }
-                     
+            */
 
                 
             json msgJson;

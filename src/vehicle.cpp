@@ -143,6 +143,7 @@ vector<vector<double>> Vehicle::get_target_for_state(string state, map<int, vect
   cout << SPEED_LIMIT << endl;
   */
   
+  
 
 //   double target_s_d = min(this->s_d + MAX_INSTANTANEOUS_ACCEL/2, SPEED_LIMIT);
  // target_s_d = SPEED_LIMIT;  
@@ -191,7 +192,7 @@ vector<vector<double>> Vehicle::get_target_for_state(string state, map<int, vect
   // replace target_s variables if there is a leading vehicle close enough
   leading_vehicle_s_and_sdot = get_leading_vehicle_data_for_lane(target_lane, predictions, duration);
   
- /* 
+  /*
  cout << "target_d =========== " << target_d << ",      target_lane =========== " << target_lane << endl; 
  cout << "leading_vehicle_s_and_sdot  =========== " << endl;
  cout << "leading_vehicle_s =========== " << endl;
@@ -199,7 +200,9 @@ vector<vector<double>> Vehicle::get_target_for_state(string state, map<int, vect
 
  cout << "leading_vehicle_sdot =========== " << endl;
  cout << leading_vehicle_s_and_sdot[1] << endl;
+
  */
+ 
  
  
   double leading_vehicle_s = leading_vehicle_s_and_sdot[0];
@@ -240,9 +243,11 @@ vector<vector<double>> Vehicle::get_target_for_state(string state, map<int, vect
   
 
   // emergency brake
+  /*
   if (car_just_ahead) {
     target_s_d = 0.0;
   }
+  */
 
 //  return {{target_s, target_s_d, target_s_dd}, {target_d, target_d_d, target_d_dd}};
 
@@ -280,6 +285,58 @@ vector<double> Vehicle::get_leading_vehicle_data_for_lane(int target_lane, map<i
   return {nearest_leading_vehicle_distance, nearest_leading_vehicle_speed};
 }
 
+
+vector<vector<double>> Vehicle::generate_best_traj(vector<vector<double>> target_s_and_d, double duration) {
+
+  double sec = 20;
+
+  this -> s;
+
+  target_s_and_d[0][0];
+
+  double s_t = ((target_s_and_d[0][0]) - (this->s))/(duration * sec);
+
+  double d_t = ((target_s_and_d[1][0]) - (this->d))/(duration * sec);
+
+  double s_d_t = ((target_s_and_d[0][1]) - (this->s_d))/(duration * sec);
+
+  double s_dd_t = ((target_s_and_d[0][2]) - (this->s_dd))/(duration * sec);
+
+  cout << "ego_car.s, s_d, s_dd : " << s << " " << s_d << "  " << s_dd << endl;
+
+  cout << " ,  target s, s_d, s_dd : " <<  target_s_and_d[0][0] << "  " <<
+  target_s_and_d[0][1] << "  " <<  target_s_and_d[0][2] << endl;
+
+  cout << "s_t should be 'travel distance / 20' : " << s_t << endl;
+  cout << "d_t should be 'travel distance / 20' : " << d_t << endl;
+
+ // cout << "s_d_t should be 'travel distance / 60' : " << s_d_t << endl;
+ // cout << "s_dd_t should be 'travel distance / 60' : " << s_dd_t << endl;
+
+
+  vector<double> s_trajectory;
+  vector<double> d_trajectory;
+
+  double base_s = this -> s;
+  double base_d = this -> d;
+
+  for(int i=0;i<sec;i++){
+
+    s_trajectory.push_back(base_s + s_t * i);
+    d_trajectory.push_back(base_d + d_t * i);
+
+  }
+
+  
+   vector<vector <double>> s_d_trajectory = {
+      s_trajectory,
+        d_trajectory
+    };
+
+
+    return s_d_trajectory;
+
+}
 
 vector<vector<double>> Vehicle::generate_traj_for_target(vector<vector<double>> target_s_and_d, double duration) {
 

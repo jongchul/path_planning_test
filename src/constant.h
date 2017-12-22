@@ -46,10 +46,10 @@
 #define MAX_SENSING_DIST 500
 
 
-
-
 //trajectory generation number .
 #define TR_NUM 10
+
+#define SIGMA_S = [10.0, 4.0, 2.0] 
 
 
 
