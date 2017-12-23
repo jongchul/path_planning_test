@@ -370,9 +370,9 @@ int main() {
 
         //    ego_car.s = car_s;
 
-       //     ego_car.s = car_s;
+            ego_car.s = car_s;
 
-            ego_car.s = previous_end_s;
+       //     ego_car.s = previous_end_s;
 
             cout << "car_s should be equal to s of previous trajectory : " << ego_car.s << endl;
 
@@ -516,9 +516,9 @@ int main() {
                 
               
 
-              vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
+           //   vector<vector<double>> possible_traj = ego_car.generate_traj_for_target(target_s_and_d, duration);
 
-           //   vector<vector<double>> possible_traj = ego_car.generate_best_traj(target_s_and_d, duration);
+              vector<vector<double>> possible_traj = ego_car.generate_linear_traj(target_s_and_d, duration);
 
               // DEBUG. possible trajectory summary
 
@@ -538,7 +538,8 @@ int main() {
 
                 distance_to_goal = GOLE_S - target_s_and_d[0][0];
 
-                int intended_lane =  target_s_and_d[1][49];
+                int intended_lane =  target_s_and_d[1][0];
+              
                 int current_lane = ego_car.d;
                 double total_available_lane = 3.0;
 
@@ -546,16 +547,19 @@ int main() {
 
                 
                 // DEBUG. check lane_change_cost
+                
                 /*
-                cout << "lane_chage_cost " << cost << endl;
-                cout << intended_lane << endl;
+                cout << "lane_chage_cost " << cost1 << endl;
+
+                cout << "intended_lane" << endl;
                 cout << intended_lane/4 << endl;
 
-                cout << current_lane << endl;
+                cout << "current_lane" << endl;
                 cout << current_lane/4 << endl;
 
                 cout << total_available_lane << endl;
-                  */
+                */
+                  
                 
                 car_distance = target_s_and_d[2][0] - ego_car.s;
 
@@ -588,7 +592,11 @@ int main() {
                 cout << "ego_car.available_states=========== " << endl;
                 cout << state << endl;  
          
-                total_cost += cost2 * 5 + cost1 * 1000;
+            //    total_cost += cost2 * 5 + cost1 * 1000.0;
+
+            //    total_cost +=  cost1 * 1000.0;
+
+                total_cost =  cost2 * 5 + cost1 * 1000.0;
   
                 //DEBUG. lane change logic test.
 
@@ -864,7 +872,7 @@ int main() {
 
               ref_x = previous_path_x[previous_path_x.size()-1];
               ref_y = previous_path_y[previous_path_y.size()-1];
-              ref_s = previous_end_s;
+           //   ref_s = previous_end_s;
 
               /*
               for(int i=0;i<prev_size;i++){
@@ -954,8 +962,9 @@ int main() {
           }
 
           cout << "final_s_way[final_s_way.size()-1] : " << final_s_way[final_s_way.size()-1] << endl;
-          previous_end_s = final_s_way[final_s_way.size()-1];
-
+          
+       //   previous_end_s = final_s_way[final_s_way.size()-1];
+          
           cout << "car_s : " << car_s << endl;
 
           /*
@@ -985,7 +994,7 @@ int main() {
           vector<double> next_x_vals_final;
           vector<double> next_y_vals_final;
 
-
+          /*
           for(int i= 0; i < previous_path_x.size(); i++){
                 next_x_vals_final.push_back(previous_path_x[i]);
                 next_y_vals_final.push_back(previous_path_y[i]);
@@ -993,6 +1002,7 @@ int main() {
           //      smooth_next_x_vals.push_back(previous_path_x[i]);
           //      smooth_next_y_vals.push_back(previous_path_y[i]);
             }
+            */
 
           tk::spline spline_x_s_final;
           tk::spline spline_y_s_final;

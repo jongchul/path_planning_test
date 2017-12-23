@@ -286,7 +286,7 @@ vector<double> Vehicle::get_leading_vehicle_data_for_lane(int target_lane, map<i
 }
 
 
-vector<vector<double>> Vehicle::generate_best_traj(vector<vector<double>> target_s_and_d, double duration) {
+vector<vector<double>> Vehicle::generate_linear_traj(vector<vector<double>> target_s_and_d, double duration) {
 
   double sec = 60;
 

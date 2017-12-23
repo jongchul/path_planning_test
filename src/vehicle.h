@@ -44,7 +44,7 @@ public:
  vector<double> get_leading_vehicle_data_for_lane(int target_lane, map<int, vector<vector<double>>> predictions, double duration);
 
 
- vector<vector<double>> generate_best_traj(vector<vector<double>> target_s_and_d, double duration);
+ vector<vector<double>> generate_linear_traj(vector<vector<double>> target_s_and_d, double duration);
 
  vector<vector<double>> generate_traj_for_target(vector<vector<double>> target_s_and_d, double duration);
 
