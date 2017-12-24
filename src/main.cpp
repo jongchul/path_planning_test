@@ -233,6 +233,58 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 }
 
 
+vector<double> getXY_DXDY(double s, double d, const vector<double> &maps_s, 
+  const vector<double> &maps_x, const vector<double> &maps_y, const vector<double> &maps_dx, const vector<double> &maps_dy)
+{
+  
+
+ // cout << "getXY_is called " << endl;
+
+  int prev_wp = -1;
+
+  while(s > maps_s[prev_wp+1] && (prev_wp < (int)(maps_s.size()-1) ))
+  {
+    prev_wp++;
+
+  }
+
+  int wp2 = (prev_wp+1)%maps_x.size();
+
+
+  double heading = atan2((maps_y[wp2]-maps_y[prev_wp]),(maps_x[wp2]-maps_x[prev_wp]));
+
+  // the x,y,s along the segment
+  double seg_s = (s-maps_s[prev_wp]);
+ 
+  double seg_x = maps_x[prev_wp]+seg_s*cos(heading);
+  double seg_y = maps_y[prev_wp]+seg_s*sin(heading);
+
+  //https://discussions.udacity.com/t/transformation-from-frenet-to-global-coordinates/387010/3
+
+  double perp_heading = heading-pi()/2;
+
+ // DEBUG
+//  cout << "heading, perp_heading, s, d" << endl;
+//  cout << heading << endl;
+//  cout << perp_heading << endl;
+//  cout << d << endl;
+ // cout << s << endl;
+
+
+//  double x = seg_x + d*cos(perp_heading);
+//  double y = seg_y + d*sin(perp_heading);
+
+  double x = seg_x; 
+  double y = seg_y; 
+
+  double dx = maps_dx[prev_wp];
+  double dy = maps_dy[prev_wp];
+
+  return {x,y, dx, dy};
+
+}
+
+
 
 
 
@@ -778,6 +830,9 @@ int main() {
 
             for(int i=0;i<final_traj_size;i++){
 
+
+            vector<double> my_wp;   
+
 ;
             s_val = final_traj[0][i];
             d_val = final_traj[1][i];
@@ -788,6 +843,10 @@ int main() {
               "****************** Big Big Big Big Error *******************";
             }
 
+            my_wp = getXY_DXDY(s_val,d_val, map_waypoints_s, map_waypoints_x,
+              map_waypoints_y,  map_waypoints_dx, map_waypoints_dy);
+
+            /*
             int prev_wp = -1;
 
             while(s_val > map_waypoints_s[prev_wp+1] && (prev_wp < (int)(map_waypoints_s.size()-1) ))
@@ -796,9 +855,7 @@ int main() {
 
             }
 
-
             int wp2 = (prev_wp+1)%map_waypoints_x.size();
-
             double heading = atan2((map_waypoints_y[wp2]-map_waypoints_y[prev_wp]),(map_waypoints_x[wp2]-map_waypoints_x[prev_wp]));
 
             // the x,y,s along the segment
@@ -807,37 +864,31 @@ int main() {
             double seg_x = map_waypoints_x[prev_wp]+seg_s*cos(heading);
             double seg_y = map_waypoints_y[prev_wp]+seg_s*sin(heading);
 
-  //https://discussions.udacity.com/t/transformation-from-frenet-to-global-coordinates/387010/3
-
             double perp_heading = heading-pi()/2;
-
- // DEBUG
-//  cout << "heading, perp_heading, s, d" << endl;
-//  cout << heading << endl;
-//  cout << perp_heading << endl;
-//  cout << d << endl;
- // cout << s << endl;
 
             double extimated_x = seg_x + d_val*cos(perp_heading);
             double extimated_y = seg_y + d_val*sin(perp_heading);
 
             double proj_dx_v = map_waypoints_dx[prev_wp];
             double proj_dy_v = map_waypoints_dy[prev_wp];
-
+  
             x_way.push_back(extimated_x);
             y_way.push_back(extimated_y);
             dx_way.push_back(proj_dx_v);
             dy_way.push_back(proj_dy_v);
-        //    ss_way.push_back(s_val + (gap * proj_s));
+                      */
+
+            x_way.push_back(my_wp[0]);
+            y_way.push_back(my_wp[1]);
+            dx_way.push_back(my_wp[2]);
+            dy_way.push_back(my_wp[3]);
 
             ss_way.push_back(s_val);
-
             d_way.push_back(d_val);
           }
         
 
           cout << "final traj summary " << endl;
-
 
           /*
          for(int i=0;i<final_traj_size;i++){
@@ -851,12 +902,11 @@ int main() {
             cout << "d value " << d_val << endl;
         }
           */
-
         
           vector<double> final_s_way, final_x_way, final_y_way, final_dx_way, final_dy_way, final_d_way;
 
 
-          double s_gap;
+      //    double s_gap;
 
        //   tk::spline spline_x_s_test;
        //   tk::spline spline_y_s_test;
@@ -875,7 +925,6 @@ int main() {
 
               ref_x = x_way[0];
               ref_y = y_way[0];
-           //   ref_s = previous_end_s;
 
               /*
               for(int i=0;i<prev_size;i++){
@@ -926,7 +975,6 @@ int main() {
           
         }
         
-
           /*
          for(int i=0;i<final_s_way[i];i++){
             cout << final_s_way[i] -ref_s << ",   "<< flush;
@@ -947,6 +995,7 @@ int main() {
           cout << "=================" << endl;
           */
 
+          // input data vector for spline fit
 
           vector<double> input_s;
           vector<double> input_x;
@@ -976,29 +1025,7 @@ int main() {
           
           cout << "car_s : " << car_s << endl;
 
-          /*
-         cout << "====== input_s is very important ========" << endl;
-
-         for(int i=0;i<input_s.size();i++){
-            cout << input_s[i] << ";   "<< flush;
-         }
-
-         cout << "=================" << endl;
-
-          for(int i=0;i<input_s.size();i++){
-            cout << input_x[i] << ",   "<< flush;
-        //    cout << input_x_test[i] << ";   "<< flush;
-         }
-
-          cout << "=================" << endl;
-
-         for(int i=0;i<input_s.size();i++){
-           cout << input_y[i] << ",   "<< flush;
-       //    cout << input_y_test[i] << ";   "<< flush;
-         }
-         
-          cout << "=================" << endl;
-          */
+      
 
           vector<double> next_x_vals_final;
           vector<double> next_y_vals_final;
@@ -1027,49 +1054,6 @@ int main() {
           spline_dx_s_final.set_points(input_s,input_dx);
           spline_dy_s_final.set_points(input_s,input_dy);
 
-
-
-          /*
-          double target_s = 5;
-
-          double target_x, target_y;
-
-
-          double prev_unit_x, prev_unit_y;
-
-     //     target_x = spline_x_s_final(target_s);
-     //     target_y = spline_y_s_final(target_s);
-
-          double target_ref_x =0, target_ref_y=0;
-
-          for(int i = 1; i <= 12;i++) {
-
-            target_x = spline_x_s_final(target_s * i);
-            target_y = spline_y_s_final(target_s * i);
-
-         //   cout << "target_x, target_y  : " << target_x << "  " << target_y << endl;
-
-
-          for(int i=0;i <target_s;i++){
-            double unit_x, unit_y;
-
-            unit_x = ((target_x * i/double(target_s)) - prev_unit_x) - target_ref_x;
-            unit_y = ((target_y * i/double(target_s)) - prev_unit_y) - target_ref_y;
-
-        //    cout << "((target_x * i/target_s)  " << (target_x * i/double(target_s))  << endl;
-
-            prev_unit_x = unit_x;
-            prev_unit_y = unit_y;
-
-         //   cout << "unit_x, unit_y : " << unit_x << "  " << unit_y << endl;
-          }
-
-            target_ref_x = target_x;
-            target_ref_y = target_y;
-          }
-
-          */
-
           
           double loop_duration = 60;  
           double max_speed = 22.0; // m/second  
@@ -1084,22 +1068,31 @@ int main() {
 
                 tg_dx =  spline_dx_s_final(i * unit_dist_inc);
                 tg_dy = spline_dy_s_final(i * unit_dist_inc);
+               
+           //     cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;
 
+                double lane = 6;
 
-                
-           //     cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;    
-                
+                tg_x =  tg_x + lane *  tg_dx;
+                tg_y =  tg_y + lane *  tg_dy;
+
+              
+            //    cout << "tg_dx, tg_dy : " << tg_dx << ",  " << tg_dy << "   " << flush;
+
+             //   cout << "lane 8 multiplied " << 8 << flush;
+
+                cout << lane * tg_dx << " , " << lane * tg_dy << flush;                
 
                 next_x_vals_final.push_back(tg_x + ref_x);
                 next_y_vals_final.push_back(tg_y + ref_y);
 
-                next_dx_vals_final.push_back(tg_dx);
-                next_dy_vals_final.push_back(tg_dy);
+                next_dx_vals_final.push_back(tg_dx * lane);
+                next_dy_vals_final.push_back(tg_dy * lane);
 
             //    cout << "ref_x, ref_y : " << ref_x << "  " << ref_y << endl;
             }
 
-             /*
+             
             
             cout << "next_x_vals_final, next_y_vals_final traj " << endl;
 
@@ -1107,11 +1100,16 @@ int main() {
              // cout <<  next_x_vals_final[i] << endl;
              // cout <<  next_y_vals_final[i] << endl;
             
-              cout << next_x_vals_final[i] << endl;
-              cout << next_y_vals_final[i] << endl;
+              cout << next_x_vals_final[i] << ",   " << flush;
+              cout << next_y_vals_final[i] << ",   " << flush;
+              cout << next_dx_vals_final[i] << ",   " << flush;
+              cout << next_dy_vals_final[i] << ",   " << flush;
+
+             
+
             }
 
-              */
+              
           
               cout << "next_x_vals_final travel distance " << endl;
 
@@ -1145,12 +1143,8 @@ int main() {
 
             }
             
-           
-            
-
-                
+                       
             json msgJson;
-
 
             msgJson["next_x"] = next_x_vals_final;
             msgJson["next_y"] = next_y_vals_final;
