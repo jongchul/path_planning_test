@@ -525,13 +525,13 @@ int main() {
               
                 cout << " possible traj2 s summary"  << endl;
                 cout << possible_traj[0][0] << endl;
-                cout << possible_traj[0][19] << endl;
+                cout << possible_traj[0][9] << endl;
              //   cout << possible_traj2[0][100] << endl;
               //  cout << possible_traj2[0][149] << endl;
 
                 cout << " possible traj d summary"  << endl;
                 cout << possible_traj[1][0] << endl;
-                cout << possible_traj[1][19] << endl;
+                cout << possible_traj[1][9] << endl;
              //   cout << possible_traj2[1][100] << endl;
              //   cout << possible_traj2[1][149] << endl;
                 
@@ -870,8 +870,11 @@ int main() {
           
           if(prev_size > 2) {
 
-              ref_x = previous_path_x[previous_path_x.size()-1];
-              ref_y = previous_path_y[previous_path_y.size()-1];
+           //   ref_x = previous_path_x[previous_path_x.size()-1];
+           //   ref_y = previous_path_y[previous_path_y.size()-1];
+
+              ref_x = x_way[0];
+              ref_y = y_way[0];
            //   ref_s = previous_end_s;
 
               /*
@@ -898,6 +901,7 @@ int main() {
              final_dx_way.push_back(dx_way[i]);
              final_dy_way.push_back(dy_way[i]);
              final_d_way.push_back(d_way[i]);
+         //     final_d_way.push_back(6.0);
           }
 
           cout << "final input data summary =================" << endl;
@@ -947,6 +951,8 @@ int main() {
           vector<double> input_s;
           vector<double> input_x;
           vector<double> input_y;
+          vector<double> input_dx;
+          vector<double> input_dy;
 
           vector<double> input_x_test;
           vector<double> input_y_test;
@@ -955,6 +961,9 @@ int main() {
             input_s.push_back(final_s_way[i] -ref_s);
             input_x.push_back(final_x_way[i] -ref_x);
             input_y.push_back(final_y_way[i] -ref_y);
+
+            input_dx.push_back(final_dx_way[i]);
+            input_dy.push_back(final_dy_way[i]);
         // final_d_way[i]      
         //    input_x.push_back((final_x_way[i] + final_d_way[i]  * final_dx_way[i]) -ref_x);
         //    input_y.push_back((final_y_way[i] + final_d_way[i]  * final_dy_way[i]) -ref_y);
@@ -994,6 +1003,9 @@ int main() {
           vector<double> next_x_vals_final;
           vector<double> next_y_vals_final;
 
+          vector<double> next_dx_vals_final;
+          vector<double> next_dy_vals_final;
+
           /*
           for(int i= 0; i < previous_path_x.size(); i++){
                 next_x_vals_final.push_back(previous_path_x[i]);
@@ -1006,44 +1018,134 @@ int main() {
 
           tk::spline spline_x_s_final;
           tk::spline spline_y_s_final;
-       //   tk::spline spline_dx_s_final;
-       //   tk::spline spline_dy_s_final;
+          tk::spline spline_dx_s_final;
+          tk::spline spline_dy_s_final;
 
           spline_x_s_final.set_points(input_s,input_x);
           spline_y_s_final.set_points(input_s,input_y);
 
-       //   double target_s = 1;
+          spline_dx_s_final.set_points(input_s,input_dx);
+          spline_dy_s_final.set_points(input_s,input_dy);
+
+
+
+          /*
+          double target_s = 5;
+
+          double target_x, target_y;
+
+
+          double prev_unit_x, prev_unit_y;
+
+     //     target_x = spline_x_s_final(target_s);
+     //     target_y = spline_y_s_final(target_s);
+
+          double target_ref_x =0, target_ref_y=0;
+
+          for(int i = 1; i <= 12;i++) {
+
+            target_x = spline_x_s_final(target_s * i);
+            target_y = spline_y_s_final(target_s * i);
+
+         //   cout << "target_x, target_y  : " << target_x << "  " << target_y << endl;
+
+
+          for(int i=0;i <target_s;i++){
+            double unit_x, unit_y;
+
+            unit_x = ((target_x * i/double(target_s)) - prev_unit_x) - target_ref_x;
+            unit_y = ((target_y * i/double(target_s)) - prev_unit_y) - target_ref_y;
+
+        //    cout << "((target_x * i/target_s)  " << (target_x * i/double(target_s))  << endl;
+
+            prev_unit_x = unit_x;
+            prev_unit_y = unit_y;
+
+         //   cout << "unit_x, unit_y : " << unit_x << "  " << unit_y << endl;
+          }
+
+            target_ref_x = target_x;
+            target_ref_y = target_y;
+          }
+
+          */
 
           
-          double progress = 0;        
+          double loop_duration = 60;  
+          double max_speed = 22.0; // m/second  
+          double unit_dist_inc = max_speed/60.0;   
 
-          for(int i= 0; i < 60; i++){
+          for(int i= 0; i < loop_duration ; i++){
 
-                double tg_x, tg_y;
+                double tg_x, tg_y, tg_dx, tg_dy;
 
-                tg_x =  spline_x_s_final(i * 0.3);
-                tg_y = spline_y_s_final(i * 0.3);
+                tg_x =  spline_x_s_final(i * unit_dist_inc);
+                tg_y = spline_y_s_final(i * unit_dist_inc);
 
-                /*
-                cout << "progress " << progress << endl;
-                cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;    
-                */
+                tg_dx =  spline_dx_s_final(i * unit_dist_inc);
+                tg_dy = spline_dy_s_final(i * unit_dist_inc);
+
+
+                
+           //     cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;    
+                
 
                 next_x_vals_final.push_back(tg_x + ref_x);
                 next_y_vals_final.push_back(tg_y + ref_y);
+
+                next_dx_vals_final.push_back(tg_dx);
+                next_dy_vals_final.push_back(tg_dy);
+
+            //    cout << "ref_x, ref_y : " << ref_x << "  " << ref_y << endl;
             }
 
-            /*
-            cout << "next_x_vals_final travel distance " << endl;
+             /*
+            
+            cout << "next_x_vals_final, next_y_vals_final traj " << endl;
 
             for(int i=0;i< next_x_vals_final.size()-1;i++){
              // cout <<  next_x_vals_final[i] << endl;
              // cout <<  next_y_vals_final[i] << endl;
             
+              cout << next_x_vals_final[i] << endl;
+              cout << next_y_vals_final[i] << endl;
+            }
+
+              */
+          
+              cout << "next_x_vals_final travel distance " << endl;
+
+              double unit_dist;
+              double unit_max_acc = unit_dist_inc * 1.2;
+              double unit_min_acc = unit_dist_inc * 0.8;
+
+            for(int i=0;i< next_x_vals_final.size()-1;i++){
+             // cout <<  next_x_vals_final[i] << endl;
+             // cout <<  next_y_vals_final[i] << endl;
+            
+            /*
               cout << sqrt(pow(next_x_vals_final[i+1]-next_x_vals_final[i],2) +
                           pow(next_y_vals_final[i+1]-next_y_vals_final[i],2)) << endl;
+                          */
+
+              unit_dist = sqrt(pow(next_x_vals_final[i+1]-next_x_vals_final[i],2) +
+                          pow(next_y_vals_final[i+1]-next_y_vals_final[i],2));
+
+              if(unit_dist > unit_max_acc || unit_dist < unit_min_acc){
+
+                cout << " loop number : " << i << endl; 
+
+                cout << "unit_dist error : " << unit_dist << endl;
+
+                cout << "next_dx_vals and dy_vals : " << endl;
+                cout << next_dx_vals_final[i] << endl;
+                cout << next_dy_vals_final[i] << endl;
+
+              }
+
             }
-            */
+            
+           
             
 
                 
