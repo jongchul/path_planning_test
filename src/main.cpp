@@ -961,7 +961,8 @@ int main() {
           cout << "ego_car.s, car_x ,car_y : " << ego_car.s << "   " << car_x << "   " <<
           car_y << endl;
 
-          
+          /*
+
           for(int i=0;i<final_s_way[i];i++){
           cout << final_s_way[i] << "  " << flush;
           cout << final_x_way[i] << "  " << flush;
@@ -969,11 +970,12 @@ int main() {
           cout << final_d_way[i] << "  " << flush;   
 
           cout << final_dx_way[i] << "  " << flush;
-          cout << final_dy_way[i] << "  " << flush;    
+          cout << final_dy_way[i] << "  " << flush;   
 
           cout << "============" << endl;    
           
         }
+          */
         
           /*
          for(int i=0;i<final_s_way[i];i++){
@@ -1002,9 +1004,10 @@ int main() {
           vector<double> input_y;
           vector<double> input_dx;
           vector<double> input_dy;
+          vector<double> input_d;
 
-          vector<double> input_x_test;
-          vector<double> input_y_test;
+         // vector<double> input_x_test;
+         // vector<double> input_y_test;
 
           for(int i=0;i<final_s_way.size();i++){
             input_s.push_back(final_s_way[i] -ref_s);
@@ -1013,6 +1016,7 @@ int main() {
 
             input_dx.push_back(final_dx_way[i]);
             input_dy.push_back(final_dy_way[i]);
+            input_d.push_back(final_d_way[i]);
         // final_d_way[i]      
         //    input_x.push_back((final_x_way[i] + final_d_way[i]  * final_dx_way[i]) -ref_x);
         //    input_y.push_back((final_y_way[i] + final_d_way[i]  * final_dy_way[i]) -ref_y);
@@ -1047,12 +1051,14 @@ int main() {
           tk::spline spline_y_s_final;
           tk::spline spline_dx_s_final;
           tk::spline spline_dy_s_final;
+          tk::spline spline_d_s_final;
 
           spline_x_s_final.set_points(input_s,input_x);
           spline_y_s_final.set_points(input_s,input_y);
 
           spline_dx_s_final.set_points(input_s,input_dx);
           spline_dy_s_final.set_points(input_s,input_dy);
+          spline_d_s_final.set_points(input_s,input_d);
 
           
           double loop_duration = 60;  
@@ -1061,40 +1067,51 @@ int main() {
 
           for(int i= 0; i < loop_duration ; i++){
 
-                double tg_x, tg_y, tg_dx, tg_dy;
+                double tg_x, tg_y, tg_dx, tg_dy, tg_d;
 
                 tg_x =  spline_x_s_final(i * unit_dist_inc);
                 tg_y = spline_y_s_final(i * unit_dist_inc);
 
                 tg_dx =  spline_dx_s_final(i * unit_dist_inc);
                 tg_dy = spline_dy_s_final(i * unit_dist_inc);
+
+                tg_d = spline_d_s_final(i * unit_dist_inc);
                
            //     cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;
 
                 double lane = 6;
 
-                tg_x =  tg_x + lane *  tg_dx;
-                tg_y =  tg_y + lane *  tg_dy;
+             //   tg_x =  tg_x + lane *  tg_dx;
+            //    tg_y =  tg_y + lane *  tg_dy;
+
+                tg_x =  tg_x + tg_d *  tg_dx;
+                tg_y =  tg_y + tg_d *  tg_dy;
 
               
             //    cout << "tg_dx, tg_dy : " << tg_dx << ",  " << tg_dy << "   " << flush;
 
              //   cout << "lane 8 multiplied " << 8 << flush;
 
-                cout << lane * tg_dx << " , " << lane * tg_dy << flush;                
+             //   cout << lane * tg_dx << " , " << lane * tg_dy << flush;                
 
                 next_x_vals_final.push_back(tg_x + ref_x);
                 next_y_vals_final.push_back(tg_y + ref_y);
 
-                next_dx_vals_final.push_back(tg_dx * lane);
-                next_dy_vals_final.push_back(tg_dy * lane);
+                next_dx_vals_final.push_back(tg_dx * tg_d);
+                next_dy_vals_final.push_back(tg_dy * tg_d);
+
+             //   next_dx_vals_final.push_back(tg_dx * tg_d);
+            //    next_dy_vals_final.push_back(tg_dy * tg_d);
+
+
 
             //    cout << "ref_x, ref_y : " << ref_x << "  " << ref_y << endl;
             }
 
-             
+             /*
             
             cout << "next_x_vals_final, next_y_vals_final traj " << endl;
+
 
             for(int i=0;i< next_x_vals_final.size()-1;i++){
              // cout <<  next_x_vals_final[i] << endl;
@@ -1108,6 +1125,8 @@ int main() {
              
 
             }
+
+            */
 
               
           
