@@ -1029,14 +1029,11 @@ int main() {
           
           cout << "car_s : " << car_s << endl;
 
-      
-
           vector<double> next_x_vals_final;
           vector<double> next_y_vals_final;
 
           vector<double> next_dx_vals_final;
           vector<double> next_dy_vals_final;
-
           /*
           for(int i= 0; i < previous_path_x.size(); i++){
                 next_x_vals_final.push_back(previous_path_x[i]);
@@ -1044,8 +1041,7 @@ int main() {
 
           //      smooth_next_x_vals.push_back(previous_path_x[i]);
           //      smooth_next_y_vals.push_back(previous_path_y[i]);
-            }
-            */
+            }       */
 
           tk::spline spline_x_s_final;
           tk::spline spline_y_s_final;
@@ -1059,16 +1055,20 @@ int main() {
           spline_dx_s_final.set_points(input_s,input_dx);
           spline_dy_s_final.set_points(input_s,input_dy);
           spline_d_s_final.set_points(input_s,input_d);
-
-          
+       
           double loop_duration = 60;  
           double max_speed = 22.0; // m/second  
-          double unit_dist_inc = max_speed/60.0;   
+          double unit_dist_inc = max_speed/(60.0-10.0); 
+
+          double flexible_s = 0;  
 
           for(int i= 0; i < loop_duration ; i++){
 
                 double tg_x, tg_y, tg_dx, tg_dy, tg_d;
 
+            //    double raw_x, raw_y;
+
+                /*
                 tg_x =  spline_x_s_final(i * unit_dist_inc);
                 tg_y = spline_y_s_final(i * unit_dist_inc);
 
@@ -1076,6 +1076,17 @@ int main() {
                 tg_dy = spline_dy_s_final(i * unit_dist_inc);
 
                 tg_d = spline_d_s_final(i * unit_dist_inc);
+                */
+
+                flexible_s += unit_dist_inc;
+
+                tg_x =  spline_x_s_final(flexible_s);
+                tg_y = spline_y_s_final(flexible_s);
+
+                tg_dx =  spline_dx_s_final(flexible_s);
+                tg_dy = spline_dy_s_final(flexible_s);
+
+                tg_d = spline_d_s_final(flexible_s);
                
            //     cout << "tg_x, tg_y " << tg_x << "  " << tg_y << endl;
 
@@ -1086,83 +1097,82 @@ int main() {
 
                 tg_x =  tg_x + tg_d *  tg_dx;
                 tg_y =  tg_y + tg_d *  tg_dy;
-
-              
+          
             //    cout << "tg_dx, tg_dy : " << tg_dx << ",  " << tg_dy << "   " << flush;
-
              //   cout << "lane 8 multiplied " << 8 << flush;
+             //   cout << lane * tg_dx << " , " << lane * tg_dy << flush;  
 
-             //   cout << lane * tg_dx << " , " << lane * tg_dy << flush;                
+
+                if(i > 0 ) {
+
+                double unit_max_acc = unit_dist_inc * 1.1;
+                double unit_min_acc = unit_dist_inc * 0.9;
+                double unit_dist;
+
+                unit_dist = sqrt(pow((tg_x + ref_x)-next_x_vals_final[i-1],2) +
+                          pow((tg_y + ref_y)-next_y_vals_final[i-1],2));
+
+
+                if((unit_dist > unit_max_acc || unit_dist < unit_min_acc)){
+   
+                double smooth_s, smooth_x, smooth_y , smooth_dx, smooth_dy, smooth_d;
+      
+                cout << " loop number : " << i << endl; 
+                cout << "unit_dist error : " << unit_dist << endl;
+                cout << "unit_dist_inc/unit_dist : " << unit_dist_inc/unit_dist << endl;
+
+            //    cout << "next_dx_vals and dy_vals : " << endl;
+            //    cout << tg_dx * tg_d << endl;
+            //    cout << tg_dy * tg_d << endl;
+
+                smooth_s = unit_dist_inc * (unit_dist_inc/unit_dist);
+
+
+                flexible_s = (flexible_s - unit_dist_inc) + smooth_s;
+
+                cout << "unit_dist_inc : " << unit_dist_inc << endl;
+                cout << "smooth_s : " << smooth_s << endl;
+                cout << "(flexible_s - unit_dist_inc) + smooth_s : " << endl;
+
+                smooth_x = spline_x_s_final(flexible_s);
+               smooth_y = spline_y_s_final(flexible_s);
+
+                smooth_dx = spline_dx_s_final(flexible_s);
+                smooth_dy = spline_dy_s_final(flexible_s);
+
+                smooth_d = spline_d_s_final(flexible_s);
+
+                tg_x =  smooth_x + smooth_d *  smooth_dx;
+                tg_y =  smooth_y + smooth_d *  smooth_dy;
+
+             //     tg_x = tg_x;
+              //    tg_y = tg_y;
+
+                cout << " loop number end: " << i << endl; 
+
+                unit_dist = sqrt(pow((tg_x + ref_x)-next_x_vals_final[i-1],2) +
+                          pow((tg_y + ref_y)-next_y_vals_final[i-1],2));
+
+                cout << "unit_dist error after flexible_s : " << unit_dist << endl;
+
+                } 
+
+              }
+
+                cout << "flexible_s : " << flexible_s << endl;
 
                 next_x_vals_final.push_back(tg_x + ref_x);
                 next_y_vals_final.push_back(tg_y + ref_y);
 
-                next_dx_vals_final.push_back(tg_dx * tg_d);
-                next_dy_vals_final.push_back(tg_dy * tg_d);
-
-             //   next_dx_vals_final.push_back(tg_dx * tg_d);
+            //    next_dx_vals_final.push_back(tg_dx * tg_d);
             //    next_dy_vals_final.push_back(tg_dy * tg_d);
 
 
-
-            //    cout << "ref_x, ref_y : " << ref_x << "  " << ref_y << endl;
             }
 
-             /*
-            
-            cout << "next_x_vals_final, next_y_vals_final traj " << endl;
-
-
-            for(int i=0;i< next_x_vals_final.size()-1;i++){
-             // cout <<  next_x_vals_final[i] << endl;
-             // cout <<  next_y_vals_final[i] << endl;
-            
-              cout << next_x_vals_final[i] << ",   " << flush;
-              cout << next_y_vals_final[i] << ",   " << flush;
-              cout << next_dx_vals_final[i] << ",   " << flush;
-              cout << next_dy_vals_final[i] << ",   " << flush;
-
-             
-
-            }
-
-            */
-
-              
           
-              cout << "next_x_vals_final travel distance " << endl;
-
-              double unit_dist;
-              double unit_max_acc = unit_dist_inc * 1.2;
-              double unit_min_acc = unit_dist_inc * 0.8;
-
-            for(int i=0;i< next_x_vals_final.size()-1;i++){
-             // cout <<  next_x_vals_final[i] << endl;
-             // cout <<  next_y_vals_final[i] << endl;
-            
-            /*
-              cout << sqrt(pow(next_x_vals_final[i+1]-next_x_vals_final[i],2) +
-                          pow(next_y_vals_final[i+1]-next_y_vals_final[i],2)) << endl;
-                          */
-
-              unit_dist = sqrt(pow(next_x_vals_final[i+1]-next_x_vals_final[i],2) +
-                          pow(next_y_vals_final[i+1]-next_y_vals_final[i],2));
-
-              if(unit_dist > unit_max_acc || unit_dist < unit_min_acc){
-
-                cout << " loop number : " << i << endl; 
-
-                cout << "unit_dist error : " << unit_dist << endl;
-
-                cout << "next_dx_vals and dy_vals : " << endl;
-                cout << next_dx_vals_final[i] << endl;
-                cout << next_dy_vals_final[i] << endl;
-
-              }
-
-            }
-            
-                       
+            cout << "next_x_vals_final travel distance " << endl;
+                     
             json msgJson;
 
             msgJson["next_x"] = next_x_vals_final;
